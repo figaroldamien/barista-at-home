@@ -1,0 +1,26 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const posts = await Astro.glob("../content/posts/*.mdx");
+const tags = Array.from(
+  new Set(
+    posts.flatMap((post) => post.frontmatter.tags || [])
+  )
+).sort((a, b) => a.localeCompare(b, "fr"));
+---
+
+<Layout title="Tags">
+  <h2 style="font-family: var(--font-heading); font-size: 2.5rem; color: var(--color-primary); margin-bottom: 2rem;">
+    Tags
+  </h2>
+
+  {tags.length === 0 ? (
+    <p>Aucun tag disponible pour le moment.</p>
+  ) : (
+    <div class="tags">
+      {tags.map((tag) => (
+        <a class="tag" href={`/tags/${encodeURIComponent(tag)}`}>{tag}</a>
+      ))}
+    </div>
+  )}
+</Layout>

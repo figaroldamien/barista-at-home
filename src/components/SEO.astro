@@ -1,0 +1,19 @@
+---
+const { title, description, ogTitle, ogDescription, canonical } = Astro.props;
+
+const resolvedTitle = title ?? "";
+const resolvedDescription = description ?? "";
+const resolvedOgTitle = ogTitle ?? resolvedTitle;
+const resolvedOgDescription = ogDescription ?? resolvedDescription;
+const resolvedCanonical = canonical ?? "";
+---
+
+<title>{resolvedTitle}</title>
+{resolvedDescription && (
+  <meta name="description" content={resolvedDescription} />
+)}
+{resolvedOgTitle && <meta property="og:title" content={resolvedOgTitle} />}
+{resolvedOgDescription && (
+  <meta property="og:description" content={resolvedOgDescription} />
+)}
+{resolvedCanonical && <link rel="canonical" href={resolvedCanonical} />}

@@ -1,0 +1,71 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const posts = await Astro.glob("../../content/posts/*.mdx");
+  const tags = Array.from(
+    new Set(posts.flatMap((post) => post.frontmatter.tags || []))
+  );
+
+  return tags.map((tag) => ({
+    params: { tag },
+  }));
+}
+
+const { tag } = Astro.params;
+const decodedTag = tag ? decodeURIComponent(tag) : "";
+const posts = await Astro.glob("../../content/posts/*.mdx");
+
+const filteredPosts = posts
+  .filter((post) => (post.frontmatter.tags || []).includes(decodedTag))
+  .sort(
+    (a, b) =>
+      new Date(b.frontmatter.date).getTime() -
+      new Date(a.frontmatter.date).getTime()
+  );
+---
+
+<Layout title={`Tag: ${decodedTag}`}>
+  <h2 style="font-family: var(--font-heading); font-size: 2.5rem; color: var(--color-primary); margin-bottom: 1rem;">
+    Tag : {decodedTag}
+  </h2>
+  <p style="margin-bottom: 2rem;">
+    <a href="/tags">Voir tous les tags</a>
+  </p>
+
+  {filteredPosts.length === 0 ? (
+    <p>Aucun article pour ce tag.</p>
+  ) : (
+    <div class="posts-list">
+      {filteredPosts.map((post) => (
+        <article class="post-card">
+          {post.frontmatter.coverImage && (
+            <img
+              src={post.frontmatter.coverImage}
+              alt={post.frontmatter.coverImageAlt || post.frontmatter.title}
+              class="post-card-image"
+            />
+          )}
+          <div class="post-card-content">
+            <h4>
+              <a href={post.url}>{post.frontmatter.title}</a>
+            </h4>
+            <div class="post-card-meta">
+              <time datetime={post.frontmatter.date}>
+                {new Date(post.frontmatter.date).toLocaleDateString("fr-FR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </time>
+              {post.frontmatter.difficulty && (
+                <span> • {post.frontmatter.difficulty}</span>
+              )}
+            </div>
+            <p>{post.frontmatter.description}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  )}
+</Layout>

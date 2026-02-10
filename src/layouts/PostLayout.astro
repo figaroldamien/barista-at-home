@@ -1,0 +1,62 @@
+---
+import Layout from "./Layout.astro";
+
+const { frontmatter, headings = [] } = Astro.props;
+const tocHeadings = headings.filter((h) => h.depth === 2);
+---
+
+<Layout title={frontmatter.title} description={frontmatter.description}>
+    <article class="post post-two-col">
+        <div class="post-columns">
+            <aside class="post-aside">
+                <header class="post-header">
+                    <h1>{frontmatter.title}</h1>
+                    <div class="post-meta">
+                        <time datetime={frontmatter.date}>
+                            {new Date(frontmatter.date).toLocaleDateString("fr-FR", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                            })}
+                        </time>
+                        {frontmatter.difficulty && (
+                            <span class="difficulty">Niveau : {frontmatter.difficulty}</span>
+                        )}
+                    </div>
+                </header>
+
+                {tocHeadings.length > 0 && (
+                    <nav class="post-toc" aria-label="Plan de l'article">
+                        <h2 class="post-toc-title">Plan</h2>
+                        <ul class="post-toc-list">
+                            {tocHeadings.map((heading) => (
+                                <li>
+                                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                )}
+
+                {frontmatter.tags && (
+                    <div class="tags">
+                        {frontmatter.tags.map((tag: string) => (
+                            <a class="tag" href={`/tags/${encodeURIComponent(tag)}`}>{tag}</a>
+                        ))}
+                    </div>
+                )}
+            </aside>
+
+            <div class="post-content post-body">
+                {frontmatter.coverImage && (
+                    <img
+                        src={frontmatter.coverImage}
+                        alt={frontmatter.coverImageAlt || frontmatter.title}
+                        class="cover-image"
+                    />
+                )}
+                <slot />
+            </div>
+        </div>
+    </article>
+</Layout>
