@@ -25,17 +25,12 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
                     </div>
                 </header>
 
-                {tocHeadings.length > 0 && (
-                    <nav class="post-toc" aria-label="Plan de l'article">
-                        <h2 class="post-toc-title">Plan</h2>
-                        <ul class="post-toc-list">
-                            {tocHeadings.map((heading) => (
-                                <li>
-                                    <a href={`#${heading.slug}`}>{heading.text}</a>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
+                {frontmatter.coverImage && (
+                    <img
+                        src={frontmatter.coverImage}
+                        alt={frontmatter.coverImageAlt || frontmatter.title}
+                        class="post-aside-image"
+                    />
                 )}
 
                 {frontmatter.tags && (
@@ -48,12 +43,16 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
             </aside>
 
             <div class="post-content post-body">
-                {frontmatter.coverImage && (
-                    <img
-                        src={frontmatter.coverImage}
-                        alt={frontmatter.coverImageAlt || frontmatter.title}
-                        class="cover-image"
-                    />
+                {tocHeadings.length > 0 && (
+                    <nav class="post-toc" aria-label="Plan de l'article">
+                        <ul class="post-toc-list">
+                            {tocHeadings.map((heading) => (
+                                <li>
+                                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
                 )}
                 <slot />
             </div>
