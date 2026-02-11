@@ -1,0 +1,50 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const sent = Astro.url.searchParams.get("sent") === "1";
+const nextUrl = new URL("/", Astro.url).toString();
+---
+
+<Layout
+    title="Contact"
+    description="Contactez Barista at home pour vos questions sur le latte art."
+>
+    <article class="post contact-page">
+        <h1>Contact</h1>
+        <p class="contact-intro">
+            Une question sur le latte art, le matériel ou une suggestion d'article ?
+            Écris-moi via le formulaire ci-dessous.
+        </p>
+
+        {sent && (
+            <p class="contact-success" role="status">
+                Merci, votre message a bien été envoyé.
+            </p>
+        )}
+
+        <form
+            class="contact-form"
+            action="https://formsubmit.co/contact@barista-at-home.fr"
+            method="POST"
+        >
+            <input type="hidden" name="_subject" value="Nouveau message depuis barista-at-home.fr" />
+            <input type="hidden" name="_next" value={nextUrl} />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="contact-honeypot" />
+
+            <label for="name">Nom</label>
+            <input id="name" name="name" type="text" required />
+
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required />
+
+            <label for="subject">Sujet</label>
+            <input id="subject" name="subject" type="text" required />
+
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows={8} required></textarea>
+
+            <button type="submit">Envoyer le message</button>
+        </form>
+    </article>
+</Layout>

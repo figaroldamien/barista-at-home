@@ -1,4 +1,4 @@
----
+﻿---
 import SEO from "../components/SEO.astro";
 
 const { title, description, canonical, ogTitle, ogDescription } = Astro.props;
@@ -33,6 +33,7 @@ const resolvedOgDescription = ogDescription || resolvedDescription;
                 <li><a href="/">Accueil</a></li>
                 <li><a href="/articles">Articles</a></li>
                 <li><a href="/about">À propos</a></li>
+                <li><a href="/contact">Contact</a></li>
                 <li>
                     <form class="header-search" action="/articles" method="get" role="search">
                         <label for="header-search-input" class="sr-only">Rechercher un article</label>
@@ -59,3 +60,4 @@ const resolvedOgDescription = ogDescription || resolvedDescription;
     </footer>
 </body>
 </html>
+
