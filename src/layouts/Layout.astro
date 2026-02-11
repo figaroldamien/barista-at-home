@@ -32,8 +32,20 @@ const resolvedOgDescription = ogDescription || resolvedDescription;
             <ul>
                 <li><a href="/">Accueil</a></li>
                 <li><a href="/articles">Articles</a></li>
-                <li><a href="/tags">Tags</a></li>
                 <li><a href="/about">À propos</a></li>
+                <li>
+                    <form class="header-search" action="/articles" method="get" role="search">
+                        <label for="header-search-input" class="sr-only">Rechercher un article</label>
+                        <input
+                            id="header-search-input"
+                            name="q"
+                            type="search"
+                            placeholder="Rechercher un titre"
+                            autocomplete="off"
+                        />
+                        <button type="submit">OK</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>

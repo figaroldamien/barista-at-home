@@ -1,4 +1,4 @@
----
+﻿---
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
@@ -6,54 +6,115 @@ const posts = await getCollection("posts");
 const sortedPosts = posts.sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
-
-const tags = Array.from(
-  new Set(posts.flatMap((post) => post.data.tags || []))
-).sort((a, b) => a.localeCompare(b, "fr"));
+const tagCounts = posts.reduce((counts, post) => {
+  (post.data.tags || []).forEach((tag) => {
+    counts.set(tag, (counts.get(tag) || 0) + 1);
+  });
+  return counts;
+}, new Map<string, number>());
+const sortedTagsWithCount = Array.from(tagCounts.entries()).sort((a, b) =>
+  a[0].localeCompare(b[0], "fr")
+);
 ---
 
 <Layout title="Tous les articles">
-  <h2 style="font-family: var(--font-heading); font-size: 2.5rem; color: var(--color-primary); margin-bottom: 1rem;">
-    Tous les articles
-  </h2>
+  <div class="home-layout">
+    <div class="home-main">
+      <section>
+        <h2>Tous les articles</h2>
 
-  {tags.length > 0 && (
-    <div class="tags" style="margin-bottom: 2rem;">
-      {tags.map((tag) => (
-        <a class="tag" href={`/tags/${encodeURIComponent(tag)}`}>{tag}</a>
-      ))}
-    </div>
-  )}
+        <p id="search-context" hidden></p>
 
-  <div class="posts-list">
-    {sortedPosts.map((post) => (
-      <article class="post-card">
-        {post.data.coverImage && (
-          <img
-            src={post.data.coverImage}
-            alt={post.data.coverImageAlt || post.data.title}
-            class="post-card-image"
-          />
-        )}
-        <div class="post-card-content">
-          <h4>
-            <a href={`/posts/${post.slug}`}>{post.data.title}</a>
-          </h4>
-          <div class="post-card-meta">
-            <time datetime={post.data.date}>
-              {new Date(post.data.date).toLocaleDateString("fr-FR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </time>
-            {post.data.difficulty && (
-              <span> • {post.data.difficulty}</span>
-            )}
-          </div>
-          <p>{post.data.description}</p>
+        <p id="no-results" hidden>Aucun article trouvé pour ce mot-clé.</p>
+
+        <div class="posts-list" id="posts-list">
+          {sortedPosts.map((post) => (
+            <article class="post-card" data-post-title={post.data.title.toLocaleLowerCase("fr")}>
+              {post.data.coverImage && (
+                <img
+                  src={post.data.coverImage}
+                  alt={post.data.coverImageAlt || post.data.title}
+                  class="post-card-image"
+                />
+              )}
+              <div class="post-card-content">
+                <h4>
+                  <a href={`/posts/${post.slug}`}>{post.data.title}</a>
+                </h4>
+                <div class="post-card-meta">
+                  <time datetime={post.data.date}>
+                    {new Date(post.data.date).toLocaleDateString("fr-FR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </time>
+                  {post.data.difficulty && <span> • {post.data.difficulty}</span>}
+                </div>
+                <p>{post.data.description}</p>
+              </div>
+            </article>
+          ))}
         </div>
-      </article>
-    ))}
+      </section>
+    </div>
+
+    <aside class="home-sidebar" aria-label="Informations complémentaires">
+      <section class="home-sidebar-box">
+        <h3>Tous les tags</h3>
+        {sortedTagsWithCount.length === 0 ? (
+          <p>Aucun tag pour le moment.</p>
+        ) : (
+          <ul class="home-tag-list">
+            {sortedTagsWithCount.map(([tag, count]) => (
+              <li>
+                <a href={`/tags/${encodeURIComponent(tag)}`}>{tag}</a>{" "}
+                <span>({count})</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section class="home-sidebar-box"></section>
+    </aside>
   </div>
 </Layout>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const query = (params.get("q") || "").trim();
+  const normalized = query.toLocaleLowerCase("fr");
+  const cards = Array.from(document.querySelectorAll("[data-post-title]"));
+  const searchContext = document.getElementById("search-context");
+  const noResults = document.getElementById("no-results");
+  const headerSearchInput = document.getElementById("header-search-input");
+
+  if (headerSearchInput instanceof HTMLInputElement) {
+    headerSearchInput.value = query;
+  }
+
+  if (!query) {
+    cards.forEach((card) => {
+      card.style.display = "";
+    });
+  } else {
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const title = card.getAttribute("data-post-title") || "";
+      const isVisible = title.includes(normalized);
+      card.style.display = isVisible ? "" : "none";
+      if (isVisible) visibleCount += 1;
+    });
+
+    if (searchContext) {
+      searchContext.hidden = false;
+      searchContext.textContent = `${visibleCount} résultat(s) pour « ${query} »`;
+    }
+
+    if (noResults) {
+      noResults.hidden = visibleCount !== 0;
+    }
+  }
+</script>
