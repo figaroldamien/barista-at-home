@@ -16,6 +16,16 @@ const tagCounts = posts.reduce((counts, post) => {
 const sortedTags = Array.from(tagCounts.entries()).sort((a, b) =>
     a[0].localeCompare(b[0], "fr"),
 );
+const difficultyCounts = posts.reduce((counts, post) => {
+    const difficulty = post.data.difficulty;
+    if (difficulty) {
+        counts.set(difficulty, (counts.get(difficulty) || 0) + 1);
+    }
+    return counts;
+}, new Map<string, number>());
+const sortedDifficulties = Array.from(difficultyCounts.entries()).sort((a, b) =>
+    a[0].localeCompare(b[0], "fr"),
+);
 ---
 
 <Layout title="Accueil">
@@ -94,7 +104,21 @@ const sortedTags = Array.from(tagCounts.entries()).sort((a, b) =>
             </section>
 
             <section class="home-sidebar-box">
-                
+                <h3>Tous les niveaux</h3>
+                {sortedDifficulties.length === 0 ? (
+                    <p>Aucun niveau pour le moment.</p>
+                ) : (
+                    <ul class="home-tag-list">
+                        {sortedDifficulties.map(([difficulty, count]) => (
+                            <li>
+                                <a href={`/difficulty/${encodeURIComponent(difficulty)}`}>
+                                    {difficulty}
+                                </a>{" "}
+                                <span>({count})</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </section>
         </aside>
     </div>

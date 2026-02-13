@@ -1,22 +1,28 @@
-﻿---
+---
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
-  const tags = Array.from(new Set(posts.flatMap((post) => post.data.tags || [])));
+  const difficulties = Array.from(
+    new Set(
+      posts
+        .map((post) => post.data.difficulty)
+        .filter((postDifficulty): postDifficulty is string => Boolean(postDifficulty))
+    )
+  );
 
-  return tags.map((tag) => ({
-    params: { tag },
+  return difficulties.map((difficulty) => ({
+    params: { difficulty },
   }));
 }
 
-const { tag } = Astro.params;
-const decodedTag = tag ? decodeURIComponent(tag) : "";
+const { difficulty } = Astro.params;
+const decodedDifficulty = difficulty ? decodeURIComponent(difficulty) : "";
 const posts = await getCollection("posts");
 
 const filteredPosts = posts
-  .filter((post) => (post.data.tags || []).includes(decodedTag))
+  .filter((post) => post.data.difficulty === decodedDifficulty)
   .sort(
     (a, b) =>
       new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
@@ -39,20 +45,21 @@ const difficultyCounts = posts.reduce((counts, post) => {
   }
   return counts;
 }, new Map<string, number>());
-const sortedDifficultiesWithCount = Array.from(difficultyCounts.entries()).sort((a, b) =>
-  a[0].localeCompare(b[0], "fr")
+
+const sortedDifficultiesWithCount = Array.from(difficultyCounts.entries()).sort(
+  (a, b) => a[0].localeCompare(b[0], "fr")
 );
 ---
 
-<Layout title={`Tag: ${decodedTag}`}>
+<Layout title={`Difficulté: ${decodedDifficulty}`}>
   <div class="home-layout">
     <div class="home-main">
       <h2 style="font-family: var(--font-heading); font-size: 2.5rem; color: var(--color-primary); margin-bottom: 1rem;">
-        Tag : {decodedTag}
+        Difficulté : {decodedDifficulty}
       </h2>
 
       {filteredPosts.length === 0 ? (
-        <p>Aucun article pour ce tag.</p>
+        <p>Aucun article pour ce niveau.</p>
       ) : (
         <div class="posts-list">
           {filteredPosts.map((post) => (
