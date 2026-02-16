@@ -1,8 +1,28 @@
 ---
+import { getCollection } from "astro:content";
 import Layout from "./Layout.astro";
 
 const { frontmatter, headings = [] } = Astro.props;
 const tocHeadings = headings.filter((h) => h.depth === 2);
+
+const posts = await getCollection("posts");
+const tagCounts = posts.reduce((counts, post) => {
+    (post.data.tags || []).forEach((tag) => {
+        counts.set(tag, (counts.get(tag) || 0) + 1);
+    });
+    return counts;
+}, new Map<string, number>());
+
+const difficultyCounts = posts.reduce((counts, post) => {
+    const difficulty = post.data.difficulty;
+    if (difficulty) {
+        counts.set(difficulty, (counts.get(difficulty) || 0) + 1);
+    }
+    return counts;
+}, new Map<string, number>());
+
+const postTags: string[] = frontmatter.tags || [];
+const postDifficulty: string | undefined = frontmatter.difficulty;
 ---
 
 <Layout title={frontmatter.title} description={frontmatter.description}>
@@ -19,9 +39,6 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
                                 day: "numeric",
                             })}
                         </time>
-                        {frontmatter.difficulty && (
-                            <span class="difficulty">Niveau : {frontmatter.difficulty}</span>
-                        )}
                     </div>
                 </header>
 
@@ -33,11 +50,35 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
                     />
                 )}
 
-                {frontmatter.tags && (
-                    <div class="tags">
-                        {frontmatter.tags.map((tag: string) => (
-                            <a class="tag" href={`/tags/${encodeURIComponent(tag)}`}>{tag}</a>
-                        ))}
+                {(postTags.length > 0 || postDifficulty) && (
+                    <div class="post-aside-taxonomies">
+                        {postTags.length > 0 && (
+                            <section class="post-aside-taxonomy">
+                                <h2>Tags</h2>
+                                <ul class="home-tag-list">
+                                    {postTags.map((tag) => (
+                                        <li>
+                                            <a href={`/tags/${encodeURIComponent(tag)}`}>{tag}</a>
+                                            <span>({tagCounts.get(tag) || 0})</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
+
+                        {postDifficulty && (
+                            <section class="post-aside-taxonomy post-aside-taxonomy-separator">
+                                <h2>Niveau</h2>
+                                <ul class="home-tag-list">
+                                    <li>
+                                        <a href={`/difficulty/${encodeURIComponent(postDifficulty)}`}>
+                                            {postDifficulty}
+                                        </a>
+                                        <span>({difficultyCounts.get(postDifficulty) || 0})</span>
+                                    </li>
+                                </ul>
+                            </section>
+                        )}
                     </div>
                 )}
             </aside>

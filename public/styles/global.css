@@ -710,3 +710,20 @@ footer {
         margin-bottom: 0.85rem;
     }
 }
+
+.post-aside-taxonomies {
+    margin-top: 1rem;
+}
+
+.post-aside-taxonomy h2 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    color: var(--color-primary);
+    margin-bottom: 0.35rem;
+}
+
+.post-aside-taxonomy-separator {
+    margin-top: 0.7rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--color-border);
+}

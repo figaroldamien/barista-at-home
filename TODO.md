@@ -23,7 +23,7 @@ Filtre dynamique des articles (page /articles)
 
 navigation entre les posts:
 
-- la troisème contient une archive du blog triée par progession débutant vers intermédiaire
-- quand on clique sur la progression, on fait apparaitre les articles correspondant à un 
+- la troisème contient une archive du blog triée par progession débutant vers intermédiaire, avec entre parenthèse le nombre d'articles correspondant à ce niveau
+- quand on clique sur la progression, on fait apparaitre les articles correspondant à un niveau
 
 s'adapter aux mobiles
